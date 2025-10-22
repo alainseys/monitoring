@@ -1,0 +1,184 @@
+        :root {
+            --primary-color: #3b82f6;
+            --primary-dark: #2563eb;
+            --gray-50: #f9fafb;
+            --gray-100: #f3f4f6;
+            --gray-200: #e5e7eb;
+            --gray-300: #d1d5db;
+            --gray-400: #9ca3af;
+            --gray-500: #6b7280;
+            --gray-600: #4b5563;
+            --gray-700: #374151;
+            --gray-800: #1f2937;
+            --gray-900: #111827;
+            --border-radius: 0.5rem;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        }
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--gray-50);
+            color: var(--gray-900);
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+        }
+        h1, h2 {
+            font-size: clamp(1.875rem, 5vw, 2.25rem);
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 2rem;
+            color: var(--gray-900);
+        }
+        h2 {
+            font-size: 1.5rem;
+        }
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+        .status-card {
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-md);
+            padding: 1.5rem;
+            border-left: 4px solid var(--primary-color);
+        }
+        .status { padding: 10px; margin: 5px; border-radius: 5px; }
+        .admin-actions { margin-top: 20px; }
+        .admin-action { padding: 5px; border-bottom: 1px solid #ddd; }
+        {% for status_name, props in STATUSES.items() %}
+        .status-card.{{ status_name|lower|replace(' ', '-') }} {
+            border-left-color: {{ props.color }};
+        }
+        .status-indicator.{{ status_name|lower|replace(' ', '-') }} {
+            background-color: {{ props.color }};
+        }
+        {% endfor %}
+        .status-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+        .status-name {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--gray-900);
+        }
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: white;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .maintenance-info {
+            background: var(--gray-100);
+            border-radius: var(--border-radius);
+            padding: 1rem;
+            margin-top: 1rem;
+            font-size: 0.875rem;
+            color: var(--gray-700);
+        }
+        .login-link {
+            display: inline-block;
+            margin-top: 2rem;
+            padding: 0.75rem 1.5rem;
+            background: var(--primary-color);
+            color: white;
+            text-decoration: none;
+            border-radius: var(--border-radius);
+            font-weight: 500;
+            transition: background-color 0.2s;
+        }
+        .login-link:hover {
+            background: var(--primary-dark);
+        }
+        .issues-section {
+            margin-top: 2rem;
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-md);
+            padding: 1.5rem;
+        }
+        .issue-item, .maintenance-item {
+            padding: 1rem;
+            border-bottom: 1px solid var(--gray-200);
+        }
+        .issue-item:last-child, .maintenance-item:last-child {
+            border-bottom: none;
+        }
+        .no-items {
+            font-style: italic;
+            color: var(--gray-500);
+        }
+        .language-switcher {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            z-index: 1000;
+            display: flex;
+            gap: 0.75rem;
+        }
+        .language-switcher .flag {
+            width: 48px;
+            height: 36px;
+            cursor: pointer;
+            padding: 0.75rem;
+            border-radius: var(--border-radius);
+            border: 1px solid var(--gray-300);
+            background: white;
+            transition: background-color 0.2s, border-color 0.2s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .language-switcher .flag:hover {
+            background-color: var(--gray-100);
+            border-color: var(--gray-400);
+        }
+        .language-switcher .flag.selected {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+        .language-switcher .flag-icon {
+            font-size: 1.5rem; /* Adjust flag size */
+        }
+        .language-switcher .flag.fallback::after {
+            content: attr(data-fallback);
+            font-size: 0.75rem;
+            color: var(--gray-700);
+            text-align: center;
+        }
+        @media (max-width: 640px) {
+            .status-grid {
+                grid-template-columns: 1fr;
+            }
+            .status-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.5rem;
+            }
+            .language-switcher {
+                position: static;
+                margin-bottom: 1rem;
+                justify-content: center;
+            }
+        }

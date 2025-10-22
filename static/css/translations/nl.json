@@ -1,0 +1,23 @@
+{
+    "lang_code": "nl",
+    "page_title": "Serverstatus",
+    "helpdesk_text": "Heb je problemen met een systeem dat niet vermeld is? Neem contact op met de helpdesk via telefoon: 7766.",
+    "scheduled": "Gepland",
+    "view_details": "Details bekijken",
+    "status_updates": "Status updates van vandaag",
+    "active_issues": "Actieve problemen",
+    "no_active_issues": "Geen actieve problemen.",
+    "resolved_issues": "Opgeloste problemen",
+    "no_resolved_issues": "Vandaag geen problemen opgelost.",
+    "scheduled_maintenance": "Gepland onderhoud",
+    "no_maintenance": "Geen onderhoud gepland voor vandaag.",
+    "admin_login": "Beheerder login",
+    "started": "Gestart",
+    "status_operational": "Operationeel",
+    "status_maintenance": "Onderhoud",
+    "status_downtime": "Downtime",
+    "status_degraded": "Verminderde prestaties",
+    "issue_timeline": "Probleem Tijdlijn",
+    "no_timeline_issues": "Geen problemen om weer te geven in de tijdlijn."
+
+}

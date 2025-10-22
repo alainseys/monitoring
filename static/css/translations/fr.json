@@ -1,0 +1,23 @@
+{
+    "lang_code": "fr",
+    "page_title": "Statut du serveur",
+    "helpdesk_text": "Vous rencontrez des problèmes avec un système non répertorié ? Contactez le service d'assistance au téléphone : 7766.",
+    "scheduled": "Planifié",
+    "view_details": "Voir les détails",
+    "status_updates": "Mises à jour du statut d'aujourd'hui",
+    "active_issues": "Problèmes actifs",
+    "no_active_issues": "Aucun problème actif.",
+    "resolved_issues": "Problèmes résolus",
+    "no_resolved_issues": "Aucun problème résolu aujourd'hui.",
+    "scheduled_maintenance": "Maintenance planifiée",
+    "no_maintenance": "Aucune maintenance planifiée pour aujourd'hui.",
+    "admin_login": "Connexion administrateur",
+    "started": "Débuté",
+    "status_operational": "Opérationnel",
+    "status_maintenance": "Maintenance",
+    "status_downtime": "Indisponibilité",
+    "status_degraded": "Performances dégradées",
+    "issue_timeline": "Chronologie des problèmes",
+    "no_timeline_issues": "Aucun problème à afficher dans la chronologie."
+
+}
