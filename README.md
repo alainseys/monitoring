@@ -2,10 +2,10 @@
 This application provides your a simple monitoring tool to see if your serivces are up or not.
 The system can do HTTP and PING checks on a interval or you can leave it of when your IT department have akknoled a problem you can change the status.
 
-# Installation
+## Installation
 For this project you can use docker to deploy this application or use it in a virtual enviroment (you might have issues with the packages with this).
 
-## Docker Installation
+### Docker Installation
 - Clone the repository to a server with docker installed
 - run ```docker compose up --build ```
 - run ```docker compose up -d ```to run it in daemon mode.
