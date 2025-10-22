@@ -1,0 +1,4 @@
+private_key
+instance/status.db
+models/__pycache__/
+venv/
