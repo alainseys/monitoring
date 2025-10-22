@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Server Details - {{ server.name }}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #3b82f6;
+            --primary-dark: #2563eb;
+            --gray-50: #f9fafb;
+            --gray-100: #f3f4f6;
+            --gray-200: #e5e7eb;
+            --gray-300: #d1d5db;
+            --gray-400: #9ca3af;
+            --gray-500: #6b7280;
+            --gray-600: #4b5563;
+            --gray-700: #374151;
+            --gray-800: #1f2937;
+            --gray-900: #111827;
+            --border-radius: 0.5rem;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--gray-50);
+            color: var(--gray-900);
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+        }
+        h1 {
+            font-size: clamp(1.875rem, 5vw, 2.25rem);
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .status-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+        .status-name {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--gray-900);
+        }
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: white;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        {% for status_name, props in STATUSES.items() %}
+        .status-indicator.{{ status_name|lower|replace(' ', '-') }} {
+            background-color: {{ props.color }};
+        }
+        {% endfor %}
+        .history-list, .maintenance-list {
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-md);
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        .history-item, .maintenance-item {
+            padding: 1rem;
+            border-bottom: 1px solid var(--gray-200);
+        }
+        .history-item:last-child, .maintenance-item:last-child {
+            border-bottom: none;
+        }
+        .back-link {
+            display: inline-block;
+            margin-top: 1rem;
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+    <div class="language-switcher">
+        <i class="flag flag-icon fi fi-us" data-lang="en" data-fallback="EN" title="English" aria-label="Switch to English" role="button"></i>
+        <i class="flag flag-icon fi fi-be" data-lang="nl" data-fallback="NL" title="Nederlands" aria-label="Switch to Nederlands" role="button"></i>
+        <i class="flag flag-icon fi fi-fr" data-lang="fr" data-fallback="FR" title="Français" aria-label="Switch to Français" role="button"></i>
+    </div>
+    <div class="container">
+        <h1 data-i18n="server_details_title">Server Details - {{ server.name }}</h1>
+        <div class="status-card {{ server.current_status|lower|replace(' ', '-') }}">
+            <div class="status-header">
+                <div class="status-name">{{ server.name }}</div>
+                <div class="status-indicator {{ server.current_status|lower|replace(' ', '-') }}">
+                    {% if server.current_status in STATUSES and STATUSES[server.current_status].icon and STATUSES[server.current_status].icon != '' %}
+                        <i class="{{ STATUSES[server.current_status].icon }}"></i>
+                    {% endif %}
+                    <span data-i18n="status_{{ server.current_status|lower|replace(' ', '_') }}">{{ server.current_status }}</span>
+                </div>
+            </div>
+            {% for maint in maintenances %}
+            <div class="maintenance-info">
+                <span data-i18n="scheduled">Scheduled</span>: {{ maint.start_time }} to {{ maint.end_time }} - {{ maint.description }}
+            </div>
+            {% endfor %}
+        </div>
+        <h2 data-i18n="status_history">Status History</h2>
+        {% for history in histories %}
+        <div class="history-item">
+            <div class="history-dot"></div>
+            <div>
+                <strong>{{ history.status }}</strong>
+                <span class="status-indicator {{ history.status|lower|replace(' ', '-') }}">
+                    {% if history.status in STATUSES and STATUSES[history.status].icon and STATUSES[history.status].icon != '' %}
+                        <i class="{{ STATUSES[history.status].icon }}"></i>
+                    {% endif %}
+                    <span data-i18n="status_{{ history.status|lower|replace(' ', '_') }}">{{ history.status }}</span>
+                </span>
+            </div>
+            <div><span data-i18n="started">Started</span>: {{ history.start_time }}</div>
+            {% if history.end_time %}
+                <div><span data-i18n="ended">Ended</span>: {{ history.end_time }}</div>
+            {% endif %}
+            {% if history.description %}
+                <div>{{ history.description }}</div>
+            {% endif %}
+            <div class="admin-info">
+                <span data-i18n="updated_by">Updated by</span>: {{ history.admin_name }} ({{ history.username or 'system' }})
+            </div>
+        </div>
+        {% endfor %}
+        <a href="{{ url_for('index') }}" class="back-link" data-i18n="back_to_home">Back to Home</a>
+    </div>
+    <script>
+        const translations = {
+            en: '/static/translations/en.json',
+            nl: '/static/translations/nl.json',
+            fr: '/static/translations/fr.json'
+        };
+
+        async function loadTranslations(lang) {
+            try {
+                const response = await fetch(translations[lang]);
+                if (!response.ok) throw new Error('Failed to load translations');
+                return await response.json();
+            } catch (error) {
+                console.error('Error loading translations:', error);
+                return {};
+            }
+        }
+
+        function updateContent(translations) {
+            document.querySelectorAll('[data-i18n]').forEach(element => {
+                const key = element.getAttribute('data-i18n');
+                if (translations[key]) {
+                    element.textContent = translations[key];
+                }
+            });
+            document.title = translations['page_title'] || document.title;
+            document.documentElement.lang = translations['lang_code'] || 'en';
+        }
+
+        function setSelectedFlag(lang) {
+            document.querySelectorAll('.flag').forEach(flag => {
+                flag.classList.toggle('selected', flag.getAttribute('data-lang') === lang);
+                flag.classList.toggle('fallback', !flag.classList.contains('flag-icon') || !flag.classList.contains(`fi-${lang}`));
+            });
+        }
+
+        document.querySelectorAll('.flag').forEach(flag => {
+            flag.addEventListener('click', async () => {
+                const lang = flag.getAttribute('data-lang');
+                localStorage.setItem('selectedLanguage', lang);
+                setSelectedFlag(lang);
+                const translationsData = await loadTranslations(lang);
+                updateContent(translationsData);
+            });
+        });
+
+        window.addEventListener('DOMContentLoaded', async () => {
+            const savedLang = localStorage.getItem('selectedLanguage') || 'en';
+            setSelectedFlag(savedLang);
+            const translationsData = await loadTranslations(savedLang);
+            updateContent(translationsData);
+        });
+    </script>
+</body>
+</html>

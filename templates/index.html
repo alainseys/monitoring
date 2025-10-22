@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-i18n="page_title">Server Status</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flag-icons@7.2.3/css/flag-icons.min.css">
+    <style>
+        :root {
+            --primary-color: #3b82f6;
+            --primary-dark: #2563eb;
+            --gray-50: #f9fafb;
+            --gray-100: #f3f4f6;
+            --gray-200: #e5e7eb;
+            --gray-300: #d1d5db;
+            --gray-400: #9ca3af;
+            --gray-500: #6b7280;
+            --gray-600: #4b5563;
+            --gray-700: #374151;
+            --gray-800: #1f2937;
+            --gray-900: #111827;
+            --border-radius: 0.5rem;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        }
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--gray-50);
+            color: var(--gray-900);
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+        }
+        h1, h2 {
+            font-size: clamp(1.875rem, 5vw, 2.25rem);
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 2rem;
+            color: var(--gray-900);
+        }
+        h2 {
+            font-size: 1.5rem;
+        }
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+        .status-card {
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-md);
+            padding: 1.5rem;
+            border-left: 4px solid var(--primary-color);
+        }
+        .status { padding: 10px; margin: 5px; border-radius: 5px; }
+        .admin-actions { margin-top: 20px; }
+        .admin-action { padding: 5px; border-bottom: 1px solid #ddd; }
+        {% for status_name, props in STATUSES.items() %}
+        .status-card.{{ status_name|lower|replace(' ', '-') }} {
+            border-left-color: {{ props.color }};
+        }
+        .status-indicator.{{ status_name|lower|replace(' ', '-') }} {
+            background-color: {{ props.color }};
+        }
+        {% endfor %}
+        .status-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+        .status-name {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--gray-900);
+        }
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: white;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .maintenance-info {
+            background: var(--gray-100);
+            border-radius: var(--border-radius);
+            padding: 1rem;
+            margin-top: 1rem;
+            font-size: 0.875rem;
+            color: var(--gray-700);
+        }
+        .login-link {
+            display: inline-block;
+            margin-top: 2rem;
+            padding: 0.75rem 1.5rem;
+            background: var(--primary-color);
+            color: white;
+            text-decoration: none;
+            border-radius: var(--border-radius);
+            font-weight: 500;
+            transition: background-color 0.2s;
+        }
+        .login-link:hover {
+            background: var(--primary-dark);
+        }
+        .issues-section {
+            margin-top: 2rem;
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-md);
+            padding: 1.5rem;
+        }
+        .issue-item, .maintenance-item, .timeline-item {
+            padding: 1rem;
+            border-bottom: 1px solid var(--gray-200);
+        }
+        .issue-item:last-child, .maintenance-item:last-child, .timeline-item:last-child {
+            border-bottom: none;
+        }
+        .no-items {
+            font-style: italic;
+            color: var(--gray-500);
+        }
+        .language-switcher {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            z-index: 1000;
+            display: flex;
+            gap: 0.75rem;
+        }
+        .language-switcher .flag {
+            width: 48px;
+            height: 36px;
+            cursor: pointer;
+            padding: 0.75rem;
+            border-radius: var(--border-radius);
+            border: 1px solid var(--gray-300);
+            background: white;
+            transition: background-color 0.2s, border-color 0.2s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .language-switcher .flag:hover {
+            background-color: var(--gray-100);
+            border-color: var(--gray-400);
+        }
+        .language-switcher .flag.selected {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+        .language-switcher .flag-icon {
+            font-size: 1.5rem;
+        }
+        .language-switcher .flag.fallback::after {
+            content: attr(data-fallback);
+            font-size: 0.75rem;
+            color: var(--gray-700);
+            text-align: center;
+        }
+        .timeline-item {
+            position: relative;
+            padding-left: 2.5rem;
+        }
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: 0.75rem;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: var(--gray-300);
+        }
+        .timeline-item .timeline-dot {
+            position: absolute;
+            left: 0.5rem;
+            top: 1.2rem;
+            width: 12px;
+            height: 12px;
+            background: var(--primary-color);
+            border-radius: 50%;
+            border: 2px solid white;
+            box-shadow: var(--shadow-sm);
+        }
+        .timeline-item .timeline-content {
+            margin-top: 0.5rem;
+        }
+        .timeline-item .timeline-time {
+            font-size: 0.875rem;
+            color: var(--gray-500);
+            margin-bottom: 0.5rem;
+        }
+        .timeline-item .timeline-description {
+            font-size: 0.875rem;
+            color: var(--gray-700);
+        }
+        @media (max-width: 640px) {
+            .status-grid {
+                grid-template-columns: 1fr;
+            }
+            .status-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.5rem;
+            }
+            .language-switcher {
+                position: static;
+                margin-bottom: 1rem;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="language-switcher">
+        <i class="flag flag-icon fi fi-us" data-lang="en" data-fallback="EN" title="English" aria-label="Switch to English" role="button"></i>
+        <i class="flag flag-icon fi fi-be" data-lang="nl" data-fallback="NL" title="Nederlands" aria-label="Switch to Nederlands" role="button"></i>
+        <i class="flag flag-icon fi fi-fr" data-lang="fr" data-fallback="FR" title="Français" aria-label="Switch to Français" role="button"></i>
+    </div>
+    <div class="container">
+        <h1 data-i18n="page_title">Server Status</h1>
+        <center><p data-i18n="helpdesk_text">Heb je problemen met een systeem dat niet vermeld is? Neem contact op met de helpdesk via telefoon: 7766.</p></center>
+        <div class="status-grid">
+            {% for server in servers %}
+            <div class="status-card {{ server.current_status|lower|replace(' ', '-') }}">
+                <div class="status-header">
+                    <div class="status-name">{{ server.name }}</div>
+                    <div class="status-indicator {{ server.current_status|lower|replace(' ', '-') }}">
+                        {% if server.current_status in STATUSES and STATUSES[server.current_status].icon and STATUSES[server.current_status].icon != '' %}
+                            <i class="{{ STATUSES[server.current_status].icon }}"></i>
+                        {% endif %}
+                        <span data-i18n="status_{{ server.current_status|lower|replace(' ', '_') }}">{{ server.current_status }}</span>
+                    </div>
+                </div>
+                {% for maint in maintenances if maint.server_id == server.id %}
+                <div class="maintenance-info">
+                    <span data-i18n="scheduled">Scheduled</span>: {{ maint.start_time }} to {{ maint.end_time }} - {{ maint.description }}
+                </div>
+                {% endfor %}
+                <a href="{{ url_for('server_details', server_id=server.id) }}" style="display: inline-block; margin-top: 1rem; color: var(--primary-color); text-decoration: none; font-weight: 500;" data-i18n="view_details">View Details</a>
+            </div>
+            {% endfor %}
+        </div>
+        <div class="issues-section">
+            <h2 data-i18n="status_updates">Today's Status Updates</h2>
+            <h3 data-i18n="issue_timeline">Issue Timeline</h3>
+            {% if timeline_issues %}
+                {% for issue in timeline_issues %}
+                <div class="timeline-item">
+                    <div class="timeline-dot"></div>
+                    <div>
+                        <strong>{{ issue.server.name }}</strong> - 
+                        <span class="status-indicator {{ issue.status|lower|replace(' ', '-') }}">
+                            {% if issue.status in STATUSES and STATUSES[issue.status].icon and STATUSES[issue.status].icon != '' %}
+                                <i class="{{ STATUSES[issue.status].icon }}"></i>
+                            {% endif %}
+                            <span data-i18n="status_{{ issue.status|lower|replace(' ', '_') }}">{{ issue.status }}</span>
+                        </span>
+                    </div>
+                    <div class="timeline-time">
+                        {{ issue.relative_time }} - {{ issue.start_time.strftime('%d/%m/%Y, %H:%M') }}
+                    </div>
+                    {% if issue.description %}
+                        <div class="timeline-description">{{ issue.description }}</div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="no-items" data-i18n="no_timeline_issues">No status updates today.</div>
+            {% endif %}
+          <!--  <h3 data-i18n="active_issues">Active Issues</h3>
+            {% if active_issues %}
+                {% for issue in active_issues %}
+                <div class="issue-item">
+                    <div>
+                        <strong>{{ issue.server.name }}</strong> - 
+                        <span class="status-indicator {{ issue.status|lower|replace(' ', '-') }}">
+                            {% if issue.status in STATUSES and STATUSES[issue.status].icon and STATUSES[issue.status].icon != '' %}
+                                <i class="{{ STATUSES[issue.status].icon }}"></i>
+                            {% endif %}
+                            <span data-i18n="status_{{ issue.status|lower|replace(' ', '_') }}">{{ issue.status }}</span>
+                        </span>
+                    </div>
+                    <div><span data-i18n="started">Started</span>: {{ issue.start_time }}</div>
+                    {% if issue.description %}
+                        <div>{{ issue.description }}</div>
+                    {% endif %}
+                </div>
+              
+                {% endfor %} 
+                
+            {% else %}
+                <div class="no-items" data-i18n="no_active_issues">No active issues.</div>
+            {% endif %}
+            <h3 data-i18n="resolved_issues">Resolved Issues</h3>
+            {% if resolved_issues %}
+                {% for issue in resolved_issues %}
+                <div class="issue-item">
+                    <div>
+                        <strong>{{ issue.server.name }}</strong> - 
+                        <span class="status-indicator {{ issue.status|lower|replace(' ', '-') }}">
+                            {% if issue.status in STATUSES and STATUSES[issue.status].icon and STATUSES[issue.status].icon != '' %}
+                                <i class="{{ STATUSES[issue.status].icon }}"></i>
+                            {% endif %}
+                            <span data-i18n="status_{{ issue.status|lower|replace(' ', '_') }}">{{ issue.status }}</span>
+                        </span>
+                    </div>
+                    <div><span data-i18n="started">Started</span>: {{ issue.start_time }}</div>
+                    {% if issue.description %}
+                        <div style="font-weight: 500; color: var(--gray-700);">{{ issue.description|replace('(', '<b>(')|replace(')', ')</b>')|safe }}</div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="no-items" data-i18n="no_resolved_issues">No issues resolved today.</div>
+            {% endif %}!-->
+            {% if scheduled_maintenances %}
+            <h3 data-i18n="scheduled_maintenance">Scheduled Maintenance</h3>
+                {% for maint in scheduled_maintenances %}
+                <div class="maintenance-item">
+                    <div><strong>{{ maint.server.name }}</strong></div>
+                    <div>{{ maint.start_time }} to {{ maint.end_time }}</div>
+                    <div>{{ maint.description }}</div>
+                </div>
+                {% endfor %}
+            {% endif %}
+        </div>
+        <a href="{{ url_for('login') }}" class="login-link" data-i18n="admin_login">Admin Login</a>
+    </div>
+    <script>
+        // Language switcher logic
+        const translations = {
+            en: '/static/translations/en.json',
+            nl: '/static/translations/nl.json',
+            fr: '/static/translations/fr.json'
+        };
+
+        async function loadTranslations(lang) {
+            try {
+                const response = await fetch(translations[lang]);
+                if (!response.ok) throw new Error('Failed to load translations');
+                return await response.json();
+            } catch (error) {
+                console.error('Error loading translations:', error);
+                return {};
+            }
+        }
+
+        function updateContent(translations) {
+            document.querySelectorAll('[data-i18n]').forEach(element => {
+                const key = element.getAttribute('data-i18n');
+                if (translations[key]) {
+                    element.textContent = translations[key];
+                }
+            });
+            document.title = translations['page_title'] || document.title;
+            document.documentElement.lang = translations['lang_code'] || 'en';
+        }
+
+        function setSelectedFlag(lang) {
+            document.querySelectorAll('.flag').forEach(flag => {
+                flag.classList.toggle('selected', flag.getAttribute('data-lang') === lang);
+                flag.classList.toggle('fallback', !flag.classList.contains('flag-icon') || !flag.classList.contains(`fi-${lang}`));
+            });
+        }
+
+        document.querySelectorAll('.flag').forEach(flag => {
+            flag.addEventListener('click', async () => {
+                const lang = flag.getAttribute('data-lang');
+                localStorage.setItem('selectedLanguage', lang);
+                setSelectedFlag(lang);
+                const translationsData = await loadTranslations(lang);
+                updateContent(translationsData);
+            });
+        });
+
+        // Load saved or default language on page load
+        window.addEventListener('DOMContentLoaded', async () => {
+            const savedLang = localStorage.getItem('selectedLanguage') || 'en';
+            setSelectedFlag(savedLang);
+            const translationsData = await loadTranslations(savedLang);
+            updateContent(translationsData);
+        });
+    </script>
+</body>
+</html>
